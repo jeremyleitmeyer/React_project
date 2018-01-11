@@ -17,23 +17,28 @@ passport.deserializeUser((id, done) => {
 
 // import google cred and set callback route after getting google profile
 passport.use(
-	new GoogleStrategy(
-	{
-		clientID: keys.googleClientID,
-		clientSecret: keys.googleClientSecret,
-		callbackURL: '/auth/google/callback',
-		proxy: true
-	}, 
-	(accessToken, refreshToken, profile, done) => {
+	new GoogleStrategy({
+			clientID: keys.googleClientID,
+			clientSecret: keys.googleClientSecret,
+			callbackURL: '/auth/google/callback',
+			proxy: true
+		},
+		async(accessToken, refreshToken, profile, done) => {
 
-		User.findOne({ googleId: profile.id }).then((existingUser) => {
-				if(existingUser) {
-					// already have record
-					done(null, existingUser);
-				} else {
-					// new record
-					new User({ googleId: profile.id }).save().then(user => done(null, user));
-				}
+			const existingUser = await User.findOne({
+				googleId: profile.id
 			})
-	})
+// this is a test
+			if (existingUser) {
+				// already have record
+				done(null, existingUser);
+			} else {
+				// new record
+				const user = await new User({
+					googleId: profile.id
+				}).save();
+				done(null, user);
+			}
+		}
+	)
 );

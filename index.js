@@ -1,32 +1,13 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cookieSession = require('cookie-session');
-const passport = require('passport');
-const keys = require('./config/keys');
-// must require models before auth
-require('./models/User');
-require('./services/passport');
+const express = require('express')
+const app = express()
+var port = process.env.PORT || 3000;
 
+app.use(express.static('public'))
 
-mongoose.connect(keys.mongoURI);
+app.get('/', function (req, res, next) {
+	res.sendFile(__dirname + '/index.html');
+});
 
-const app = express();
-
-app.use(
-	cookieSession({
-		maxAge: 30 * 24 * 60 * 60 * 1000,
-		keys: [keys.cookieKey]
-	})
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-require('./routes/authRoutes')(app);
-
-// set the port for deployment or local
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, function(){
-		console.log('Running on: ' + PORT)
+app.listen(port, function () {
+	console.log('Doing the thang on:' + port)
 });
